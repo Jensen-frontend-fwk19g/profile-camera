@@ -1,0 +1,16 @@
+{
+  "name": "User profile",
+  "short_name": "User profile",
+  "description": "Take picture for the profile",
+  "display": "standalone",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "img/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "background_color": "#ba8411",
+  "theme_color": "#ba8411"
+}
