@@ -19,6 +19,7 @@ if( 'serviceWorker' in navigator ) {
 
 window.addEventListener('load', () => {
     if( 'mediaDevices' in navigator ) {
+        const errorMessage = document.querySelector('.video > .error');
         const startButton = document.querySelector('.video > .start-stream');
         const stopButton = document.querySelector('.video > .stop-stream');
         const photoButton = document.querySelector('.profile button');
@@ -28,25 +29,43 @@ window.addEventListener('load', () => {
 
         let stream;
         startButton.addEventListener('click', async () => {
-            const md = navigator.mediaDevices;
-            stream = await md.getUserMedia({
-                video: { width: 320, height: 320 }
-            })
+            errorMessage.innerHTML = '';
+            try {
+                const md = navigator.mediaDevices;
+                stream = await md.getUserMedia({
+                    video: { width: 320, height: 320 }
+                })
 
-            const video = document.querySelector('.video > video');
-            video.srcObject = stream;
+                const video = document.querySelector('.video > video');
+                video.srcObject = stream;
+                stopButton.disabled = false;
+                photoButton.disabled = false;
+                startButton.disabled = true;
+            } catch (e) {
+                // Visa felmeddelande för användaren:
+                errorMessage.innerHTML = 'Could not show camera window.';
+            }
         })
         stopButton.addEventListener('click', () => {
+            errorMessage.innerHTML = '';
             if( stream ) {
                 // hur stoppa strömmen? Kolla dokumentationen
                 let tracks = stream.getTracks();
                 tracks.forEach(track => track.stop());
+                stopButton.disabled = true;
+                photoButton.disabled = true;
+                startButton.disabled = false;
+            } else {
+                errorMessage.innerHTML = 'No video to stop.';
             }
         })
 
         photoButton.addEventListener('click', async () => {
-            if( !stream )
+            errorMessage.innerHTML = '';
+            if( !stream ) {
+                errorMessage.innerHTML = 'No video to take photo from.';
                 return;
+            }
 
             let tracks = stream.getTracks();
             let videoTrack = tracks[0];
