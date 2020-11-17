@@ -19,3 +19,7 @@ button {
     width: 192px;
     height: 192px;
 }
+
+.hidden {
+    display: none;
+}
