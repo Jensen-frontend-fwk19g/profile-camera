@@ -105,8 +105,14 @@ function cameraSettings() {
             }
         });
         mediaRecorder.addEventListener('stop', event => {
+            console.log('mediaRecorder.stop: ', event);
             const blob = new Blob(chunks, { type: 'video/webm' });
-
+            // WEBM-formatet fungerar i Chrome och Firefox
+            // Använd gärna MP4 som fallback
+            const url = URL.createObjectURL(blob);
+            downloadLink.href = url;
+            downloadLink.classList.remove('hidden');
+            downloadLink.download = 'recording.webm';
         })
         mediaRecorder.start();
     })
