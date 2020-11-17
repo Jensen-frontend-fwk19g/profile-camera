@@ -49,6 +49,7 @@ function cameraSettings() {
             stopButton.disabled = false;
             photoButton.disabled = false;
             startButton.disabled = true;
+            startRecording.disabled = false;
         } catch (e) {
             // Visa felmeddelande för användaren:
             errorMessage.innerHTML = 'Could not show camera window.';
@@ -56,16 +57,18 @@ function cameraSettings() {
     })
     stopButton.addEventListener('click', () => {
         errorMessage.innerHTML = '';
-        if( stream ) {
-            // hur stoppa strömmen? Kolla dokumentationen
-            let tracks = stream.getTracks();
-            tracks.forEach(track => track.stop());
-            stopButton.disabled = true;
-            photoButton.disabled = true;
-            startButton.disabled = false;
-        } else {
+        if( !stream ) {
             errorMessage.innerHTML = 'No video to stop.';
+            return;
         }
+        // hur stoppa strömmen? Kolla dokumentationen
+        let tracks = stream.getTracks();
+        tracks.forEach(track => track.stop());
+        stopButton.disabled = true;
+        photoButton.disabled = true;
+        startButton.disabled = false;
+        startRecording.disabled = true;
+        stopRecording.disabled = true;
     })
 
     photoButton.addEventListener('click', async () => {
@@ -82,5 +85,39 @@ function cameraSettings() {
 
         let imgUrl = URL.createObjectURL(blob);
         profilePic.src = imgUrl;
+    })
+
+    let mediaRecorder;
+    startRecording.addEventListener('click', async () => {
+        if( !stream ) {
+            errorMessage.innerHTML = 'No video available';
+            return;
+        }
+        startRecording.disabled = true;
+        stopRecording.disabled = false;
+        mediaRecorder = new MediaRecorder(stream);
+        let chunks = [];
+        mediaRecorder.addEventListener('dataavailable', event => {
+            console.log('mediaRecorder.dataavailable: ', event);
+            const blob = event.data;
+            if( blob.size > 0 ) {
+                chunks.push(blob);
+            }
+        });
+        mediaRecorder.addEventListener('stop', event => {
+            const blob = new Blob(chunks, { type: 'video/webm' });
+
+        })
+        mediaRecorder.start();
+    })
+    stopRecording.addEventListener('click', async () => {
+        if( mediaRecorder ) {
+            stopRecording.disabled = true;
+            startRecording.disabled = false;
+            mediaRecorder.stop();
+            mediaRecorder = null;
+        } else {
+            errorMessage.innerHTML = 'No recording to stop.';
+        }
     })
 }
