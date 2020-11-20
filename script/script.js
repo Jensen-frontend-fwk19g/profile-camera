@@ -85,9 +85,11 @@ function cameraSettings() {
 
         let imgUrl = URL.createObjectURL(blob);
         profilePic.src = imgUrl;
+        profilePic.classList.remove('hidden');
     })
 
     let mediaRecorder;
+    // user clicks "Record video"
     startRecording.addEventListener('click', async () => {
         if( !stream ) {
             errorMessage.innerHTML = 'No video available';
@@ -97,6 +99,8 @@ function cameraSettings() {
         stopRecording.disabled = false;
         mediaRecorder = new MediaRecorder(stream);
         let chunks = [];
+
+        // Triggered every time there is a new packet of video data to process
         mediaRecorder.addEventListener('dataavailable', event => {
             console.log('mediaRecorder.dataavailable: ', event);
             const blob = event.data;
@@ -104,6 +108,8 @@ function cameraSettings() {
                 chunks.push(blob);
             }
         });
+
+        // Triggered when the recording has stopped, after all data packets has been processed
         mediaRecorder.addEventListener('stop', event => {
             console.log('mediaRecorder.stop: ', event);
             const blob = new Blob(chunks, { type: 'video/webm' });
@@ -114,12 +120,16 @@ function cameraSettings() {
             downloadLink.classList.remove('hidden');
             downloadLink.download = 'recording.webm';
         })
+        // Start recording
         mediaRecorder.start();
     })
+    // User clicks "Stop recording"
     stopRecording.addEventListener('click', async () => {
         if( mediaRecorder ) {
             stopRecording.disabled = true;
             startRecording.disabled = false;
+
+            // This triggers "dataavailable"
             mediaRecorder.stop();
             mediaRecorder = null;
         } else {
